@@ -5,7 +5,7 @@ function startAnalysis(elem, league_id, week) {
  
         if (result.status !== 'finished') {
             progress = result.progress
-            elem.textContent = `${progress}%...`;
+            elem.textContent = `${progress}% ...`;
             setTimeout(function() {
                 startAnalysis(elem, league_id, week);
             } , 1000);

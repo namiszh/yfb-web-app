@@ -34,21 +34,14 @@
             </div>
         </nav>
 
-        <!-- Top Header -->
-        <!-- <div class="top-header py-2 bg-gradient bg-light">
-            <div class="container">
-                <h6>老黄研究 Yahoo Fantasy Basketball 的地方</h6>
-            </div>
-        </div> -->
-
         <!-- Navbar  -->
-        <div class="row bg-gradient bg-light" style="height: 44px; margin: 0px; padding: 2px;">
-            <div class="col">
+        <div class="row sticky-top bg-gradient bg-light" style="height: 44px; margin: 0px; padding: 2px;">
+            <div class="col-3">
                 <div class="dropdown">
                     <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
                         aria-expanded="false">
                         {% for league in leagues %}
-                        {% if league.league_id == league_id: %}
+                        {% if league.league_id == current_league_id: %}
                         {{league.name}}
                         {% endif %}
                         {% endfor %}
@@ -56,7 +49,7 @@
                     {% if leagues|length > 1 %}
                     <ul class="dropdown-menu">
                         {% for league in leagues %}
-                        {% if league.league_id == league_id: %}
+                        {% if league.league_id == current_league_id: %}
                         <li><a class="dropdown-item active"
                                 href="{{ url_for('.showresult', league_id=league.league_id) }}">{{league.name}}</a></li>
                         {% else %}
@@ -69,16 +62,43 @@
                 </div>
 
             </div>
-            <div class="col">
+            <div class="col-6">
+                <ul class="nav nav-pills nav-fill mb-3" id="pills-tab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="pills-bar-tab" data-bs-toggle="pill"
+                            data-bs-target="#pills-bar" type="button" role="tab" aria-controls="pills-bar"
+                            aria-selected="true">Roto战力图</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="pills-roto-tab" data-bs-toggle="pill" data-bs-target="#pills-roto"
+                            type="button" role="tab" aria-controls="pills-roto" aria-selected="false">Roto明细表</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="pills-battle-tab" data-bs-toggle="pill"
+                            data-bs-target="#pills-battle" type="button" role="tab" aria-controls="pills-battle"
+                            aria-selected="false">H2H对战表</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="pills-radar-tab" data-bs-toggle="pill"
+                            data-bs-target="#pills-radar" type="button" role="tab" aria-controls="pills-radar"
+                            aria-selected="false">各队雷达图</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="pills-data-tab" data-bs-toggle="pill" data-bs-target="#pills-data"
+                            type="button" role="tab" aria-controls="pills-data" aria-selected="false">原始数据表</button>
+                    </li>
+                </ul>
+            </div>
+            <div class="col-3">
                 <nav aria-label="Page navigation example">
-                    <ul class="pagination">
+                    <ul class="pagination justify-content-end">
                         {% if min_week < current_week: %} <li class="page-item"><a class="page-link"
                                 href="{{ url_for('.showresult', league_id=league_id, week=current_week-1) }}">&laquo;
                                 Previous</a></li>
                             {% else %}
                             <li class="page-item"><a class="page-link disabled" href="#">&laquo; Previous</a></li>
                             {% endif %}
-                            <li class="page-item"><a class="page-link" href="#">week {{current_week}}</a></li>
+                            <li class="page-item"><a class="page-link disabled" href="#">week {{current_week}}</a></li>
                             {% if max_week > current_week: %}
                             <li class="page-item"><a class="page-link"
                                     href="{{ url_for('.showresult', league_id=league_id, week=current_week+1) }}">Next
@@ -88,42 +108,10 @@
                             {% endif %}
                     </ul>
                 </nav>
-            </div>
-            <div class="col text-end">
 
-                <!-- <div class="btn-group">
-                    <a href="#ranking_chart" class="btn btn-primary">Roto战力图</a>
-                    <a href="#ranking_score" class="btn btn-primary">Roto明细表</a>
-                    <a href="#battle_score" class="btn btn-primary">H2H对战表</a>
-                    <a href="#radar_charts" class="btn btn-primary">各队雷达图</a>
-                    <a href="#raw_stats" class="btn btn-primary">原始数据表</a>
-                </div> -->
             </div>
         </div>
-        <div class="row sticky-top" style="height: 44px; margin: 0px; padding: 2px;">
-            <ul class="nav nav-pills nav-fill mb-3" id="pills-tab" role="tablist">
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link active" id="pills-bar-tab" data-bs-toggle="pill" data-bs-target="#pills-bar"
-                        type="button" role="tab" aria-controls="pills-bar" aria-selected="true">Roto战力图</button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="pills-roto-tab" data-bs-toggle="pill" data-bs-target="#pills-roto"
-                        type="button" role="tab" aria-controls="pills-roto" aria-selected="false">Roto明细表</button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="pills-battle-tab" data-bs-toggle="pill" data-bs-target="#pills-battle"
-                        type="button" role="tab" aria-controls="pills-battle" aria-selected="false">H2H对战表</button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="pills-radar-tab" data-bs-toggle="pill" data-bs-target="#pills-radar"
-                        type="button" role="tab" aria-controls="pills-radar" aria-selected="false">各队雷达图</button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="pills-data-tab" data-bs-toggle="pill" data-bs-target="#pills-data"
-                        type="button" role="tab" aria-controls="pills-data" aria-selected="false">原始数据表</button>
-                </li>
-            </ul>
-        </div>
+
         <!-- Main Content -->
         <div class="main">
             <div class="container">
