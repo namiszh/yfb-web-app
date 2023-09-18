@@ -48,7 +48,7 @@
                     <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
                         aria-expanded="false">
                         {% for league in leagues %}
-                        {% if league.league_key == current_league_key: %}
+                        {% if league.league_id == league_id: %}
                         {{league.name}}
                         {% endif %}
                         {% endfor %}
@@ -56,12 +56,12 @@
                     {% if leagues|length > 1 %}
                     <ul class="dropdown-menu">
                         {% for league in leagues %}
-                        {% if league.league_key == current_league_key: %}
+                        {% if league.league_id == league_id: %}
                         <li><a class="dropdown-item active"
-                                href="{{ url_for('.league', league_key=league.league_key) }}">{{league.name}}</a></li>
+                                href="{{ url_for('.showresult', league_id=league.league_id) }}">{{league.name}}</a></li>
                         {% else %}
                         <li><a class="dropdown-item"
-                                href="{{ url_for('.league', league_key=league.league_key) }}">{{league.name}}</a></li>
+                                href="{{ url_for('.showresult', league_id=league.league_id) }}">{{league.name}}</a></li>
                         {% endif %}
                         {% endfor %}
                     </ul>
@@ -73,7 +73,7 @@
                 <nav aria-label="Page navigation example">
                     <ul class="pagination">
                         {% if min_week < current_week: %} <li class="page-item"><a class="page-link"
-                                href="{{ url_for('.week', league_key=current_league_key, week=current_week-1) }}">&laquo;
+                                href="{{ url_for('.showresult', league_id=league_id, week=current_week-1) }}">&laquo;
                                 Previous</a></li>
                             {% else %}
                             <li class="page-item"><a class="page-link disabled" href="#">&laquo; Previous</a></li>
@@ -81,7 +81,7 @@
                             <li class="page-item"><a class="page-link" href="#">week {{current_week}}</a></li>
                             {% if max_week > current_week: %}
                             <li class="page-item"><a class="page-link"
-                                    href="{{ url_for('.week', league_key=current_league_key, week=current_week+1) }}">Next
+                                    href="{{ url_for('.showresult', league_id=league_id, week=current_week+1) }}">Next
                                     &raquo;</a></li>
                             {% else %}
                             <li class="page-item"><a class="page-link disabled" href="#">Next &raquo;</a></li>

@@ -60,7 +60,8 @@
                             <div class="card-body">
                               <h5 class="card-title">{{league.name}}</h5>
                               <p class="card-text">Current Week: {{league.current_week}}</p>
-                              <a href="{{ url_for('.league', league_key=league.league_key) }}" class="btn btn-primary">Analyze</a>
+                              <button type="button" class="btn btn-primary btn-analyis" data-league-id="{{league.league_id}}", data-week="{{league.current_week}}">Analyze</button>
+                              <!-- <a href="{{ url_for('.analyze', league_id=league.league_id) }}" class="btn btn-primary">Analyze</a> -->
                             </div>
                           </div>
                     </div>
@@ -79,6 +80,8 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-OERcA2EqjJCMA+/3y+gxIOqMEjwtxJY7qPCqsdltbNJuaOe923+mo//f6V8Qbsw3" crossorigin="anonymous">
+    </script>
+    <script src="../static/js/main.js">
     </script>
 </body>
 

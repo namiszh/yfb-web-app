@@ -9,7 +9,7 @@ ENV='development'
 DEBUG=True
 
 
-# SECRET_KEY = 'you-will-never-guess'
+SECRET_KEY = 'you-will-never-guess-hahahahaha-jdsf90asufwkjfcjsofusfchjs9027urhjwofj'
 
 # SQLALCHEMY_TRACK_MODIFICATIONS = False
 
