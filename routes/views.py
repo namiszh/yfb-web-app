@@ -144,7 +144,6 @@ def analyze(league_id, week):
                 # the remaining 10% is for analyze
                 team_index += 1
                 PROGRESS_PERCENTAGE = int(90*team_index/len(teams))
-                # print('preogress', PROGRESS_PERCENTAGE)
 
             print('=== Analyzing data')
 
@@ -165,12 +164,13 @@ def analyze(league_id, week):
             # print(data_types)
             week_df = week_df.astype(data_types)
             total_df = total_df.astype(data_types)
+            PROGRESS_PERCENTAGE = 93
 
             week_score = stat_to_score(week_df, sort_orders)
             total_score = stat_to_score(total_df, sort_orders)
-
             battle_score = roto_score_to_battle_score(week_score)
 
+            PROGRESS_PERCENTAGE = 95
             bar_chart = league_bar_chart(team_names, week_score['Total'], total_score['Total'], league_name, display_week)
             radar_charts = league_radar_charts(week_score, total_score, display_week)
             
@@ -178,6 +178,7 @@ def analyze(league_id, week):
             week_score = remove_trailing_zero(week_score)
             total_score = remove_trailing_zero(total_score)
             battle_score = remove_trailing_zero(battle_score)
+            PROGRESS_PERCENTAGE = 98
 
             global ANALYSIS_RESULT
             ANALYSIS_RESULT = {
@@ -198,7 +199,6 @@ def analyze(league_id, week):
             }
 
             PROGRESS_PERCENTAGE = 100
-            # return result
 
 
         # create a new thread to run the analysis work
@@ -208,25 +208,18 @@ def analyze(league_id, week):
 
         time.sleep(1) 
 
-        return { 'status': 'initiated', 'progress':  PROGRESS_PERCENTAGE }, 202
-
-        # return redirect(url_for('analyze', league_id=league_id, week=week))
+        return { 'status': 'initiated', 'progress':  PROGRESS_PERCENTAGE }, 200
 
 
     elif PROGRESS_PERCENTAGE == 100: # finished
         PROGRESS_PERCENTAGE = -1 # reset 
 
         return { 'status': 'finished' }, 200
-        # redirect to display 
-        # return redirect(url_for('showresult', league_id=league_id, week=week), code=302)
 
     else:
         time.sleep(1)
 
         return { 'status': 'in progress', 'progress':  PROGRESS_PERCENTAGE}, 200
-
-        # return redirect(url_for('analyze', league_id=league_id, week=week))
-
 
 
 
@@ -236,23 +229,6 @@ def analyze(league_id, week):
 def showresult(league_id, week):
     global ANALYSIS_RESULT
     
-    # result = {
-    #     'leagues': [], # all leagues, used to fill the league list
-    #     'league_id': 1, # current leagues id
-    #     'team_names': ['a', 'b'],
-    #     'display_week': 1,
-    #     'min_week': 1,
-    #     'max_week': 2,
-    #     'stat_names': ['c', 'd'],
-    #     'week_stats': pd.DataFrame(),
-    #     'total_stats':pd.DataFrame(),
-    #     'week_score': pd.DataFrame(),
-    #     'total_score': pd.DataFrame(),
-    #     'battle_score': pd.DataFrame(),
-    #     'bar_chart': 'bar_chart',
-    #     'radar_charts': 'radar_charts'
-    # }
-
     team_number = len(ANALYSIS_RESULT['team_names'])
     tie_score = len(ANALYSIS_RESULT['stat_names']) / 2
 
@@ -277,8 +253,6 @@ def showresult(league_id, week):
           (style_bottom if float(value) > tie_score else 
            'background-color: #ffffd9')) for value in x])
 
-    print('=== Generating charts for visualization')
-    print('=== rendering page')
     return render_template('league.html',
         leagues = ANALYSIS_RESULT['leagues'],
         current_league_id=ANALYSIS_RESULT['league_id'],

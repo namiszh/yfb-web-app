@@ -4,8 +4,13 @@ function startAnalysis(elem, league_id, week) {
     .then(result => {
  
         if (result.status !== 'finished') {
+            // update progress bar
             progress = result.progress
-            elem.textContent = `${progress}% ...`;
+            let elemProgressBar = document.querySelector('.progress-bar');
+            elemProgressBar.style.width = `${progress}%`;
+            elemProgressBar.innerText = `${progress}%`;
+
+            // send request again after 1 second
             setTimeout(function() {
                 startAnalysis(elem, league_id, week);
             } , 1000);
@@ -20,7 +25,8 @@ function startAnalysis(elem, league_id, week) {
 const analyisButtons = document.querySelectorAll('.btn-analyis');
 for (let i = 0; i < analyisButtons.length; i++) {
     analyisButtons[i].addEventListener("click", (e) => {
-        e.target.textContent = 'Analyzing...';
+        let progressBar = document.querySelector('.progress');
+        progressBar.classList.remove('d-none');  // show the progress bar
         league_id = e.target.dataset.leagueId
         week = e.target.dataset.week
         startAnalysis(e.target, league_id, week)
