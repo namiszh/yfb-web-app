@@ -1,4 +1,4 @@
-function startAnalysis(elem, league_id, week) {
+function startAnalysis(league_id, week) {
     fetch(`/${league_id}/${week}/polling`, { method: 'GET' })
     .then(resp => resp.json())
     .then(result => {
@@ -12,10 +12,10 @@ function startAnalysis(elem, league_id, week) {
 
             // send request again after 1 second
             setTimeout(function() {
-                startAnalysis(elem, league_id, week);
+                startAnalysis(league_id, week);
             } , 1000);
         } else {
-            window.location.href = `./${league_id}/${week}`;
+            window.location.href = `/${league_id}/${week}`;
         }
     })
     .catch(errorMsg => { console.log(errorMsg); });
@@ -25,10 +25,13 @@ function startAnalysis(elem, league_id, week) {
 const analyisButtons = document.querySelectorAll('.btn-analyis');
 for (let i = 0; i < analyisButtons.length; i++) {
     analyisButtons[i].addEventListener("click", (e) => {
+        // show the progress bar
         let progressBar = document.querySelector('.progress');
-        progressBar.classList.remove('d-none');  // show the progress bar
+        progressBar.classList.remove('d-none');  
+
+        // console.log(e.target);
         league_id = e.target.dataset.leagueId
         week = e.target.dataset.week
-        startAnalysis(e.target, league_id, week)
+        startAnalysis(league_id, week)
     });
 }

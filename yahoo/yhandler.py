@@ -40,7 +40,7 @@ class YHandler:
         uri = 'users;use_login=1/games;game_codes=nba;seasons={}/leagues'.format(season)
         resp = self._get(uri)
         t = objectpath.Tree(resp)
-        jfilter = t.execute('$..leagues..(league_key, league_id, name, logo_url, current_week, start_week, end_week)')
+        jfilter = t.execute('$..leagues..(league_key, league_id, name, logo_url, start_date, end_date, current_week, start_week, end_week)')
 
         leagues = []
         for l in jfilter:

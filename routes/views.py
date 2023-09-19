@@ -89,13 +89,21 @@ def analyze(league_id, week):
                 if (league_id == league['league_id']):
                     league_key = league['league_key']
                     league_name = league['name']
+
+                    start_date = datetime.datetime.strptime(league['start_date'], '%Y-%m-%d').date()
+                    end_date = datetime.datetime.strptime(league['end_date'], '%Y-%m-%d').date()
+                    today = datetime.datetime.now(pytz.timezone('US/Pacific')).date()
+
                     start_week = int(league['start_week'])
                     current_week = int(league['current_week'])
 
                     min_week = start_week # display in page
                     max_week = current_week # display in page
-                    weekday = datetime.datetime.now(pytz.timezone('US/Pacific')).weekday()
-                    if weekday <= 1:
+                    # print('start_week', start_week)
+                    # print('current_week', current_week)
+                    # print('end_week', int(league['end_week']))
+                    weekday = today.weekday()
+                    if weekday <= 1 and today < end_date:
                         max_week -= 1
 
                     if week is None or week < start_week or week > current_week:  # input (week) is not valid, use current week or the previous week 
@@ -106,6 +114,9 @@ def analyze(league_id, week):
                             display_week -= 1
                     else: # input (week) is valid, use it
                         display_week = week
+                    # print('min week', min_week)
+                    # print('max_week', max_week)
+                    # print('display_week', display_week)
                     
                     break
 
@@ -205,8 +216,6 @@ def analyze(league_id, week):
         analyze_thread = threading.Thread(target=analyze, kwargs={
                     'league_id': league_id, 'week': week})
         analyze_thread.start()
-
-        time.sleep(1) 
 
         return { 'status': 'initiated', 'progress':  PROGRESS_PERCENTAGE }, 200
 
