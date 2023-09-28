@@ -23,6 +23,8 @@ async function startAnalysis(league_id, week) {
     }
     
     await fetch(`/${league_id}/${week}/analyze`, { method: 'GET' })
+    updateProgressBar(95);
+    await fetch(`/${league_id}/${week}/chart`, { method: 'GET' })
     updateProgressBar(100);
     window.location.href = `/${league_id}/${week}`;
 }

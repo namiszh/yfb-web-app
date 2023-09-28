@@ -262,21 +262,21 @@ def analyze(league_id, week):
     total_score = stat_to_score(total_df, sort_orders)
     battle_score = roto_score_to_battle_score(week_score)
 
-    bar_chart = league_bar_chart(team_names, week_score['Total'], total_score['Total'], league_name, week)
-    radar_charts = league_radar_charts(week_score, total_score, week)
+    # bar_chart = league_bar_chart(team_names, week_score['Total'], total_score['Total'], league_name, week)
+    # radar_charts = league_radar_charts(week_score, total_score, week)
 
-    # format output
-    week_score = remove_trailing_zero(week_score)
-    total_score = remove_trailing_zero(total_score)
-    battle_score = remove_trailing_zero(battle_score)
+    # # format output
+    # week_score = remove_trailing_zero(week_score)
+    # total_score = remove_trailing_zero(total_score)
+    # battle_score = remove_trailing_zero(battle_score)
 
     g_result['current_league']['week_stats_df'] = week_df
     g_result['current_league']['total_stats_df'] = total_df
     g_result['current_league']['week_score_df'] = week_score
     g_result['current_league']['total_score_df'] = total_score
     g_result['current_league']['battle_score_df'] = battle_score
-    g_result['current_league']['bar_chart'] = bar_chart
-    g_result['current_league']['radar_charts'] = radar_charts
+    # g_result['current_league']['bar_chart'] = bar_chart
+    # g_result['current_league']['radar_charts'] = radar_charts
 
     app.logger.debug('++++++++  Week {} stats'.format(week))
     app.logger.debug('\t'+ week_df.to_string().replace('\n', '\n\t'))
@@ -289,6 +289,34 @@ def analyze(league_id, week):
     app.logger.debug('++++++++  Total stats')
     app.logger.debug('\t'+ total_score.to_string().replace('\n', '\n\t'))
 
+
+    return { 'status': 'success' }, 200
+
+@login_required
+@app.route('/<league_id>/<int:week>/chart')
+def chart(league_id, week):
+    global g_result
+
+    league_name = g_result['current_league']['league_name']
+    week_score = g_result['current_league']['week_score_df']
+    total_score = g_result['current_league']['total_score_df']
+    battle_score = g_result['current_league']['battle_score_df']
+    teams = g_result['current_league']['teams']
+    team_names = list(map(lambda x: x['name'], teams))
+
+    bar_chart = league_bar_chart(team_names, week_score['Total'], total_score['Total'], league_name, week)
+    radar_charts = league_radar_charts(week_score, total_score, week)
+
+    # format output
+    week_score = remove_trailing_zero(week_score)
+    total_score = remove_trailing_zero(total_score)
+    battle_score = remove_trailing_zero(battle_score)
+
+    g_result['current_league']['week_score_df'] = week_score
+    g_result['current_league']['total_score_df'] = total_score
+    g_result['current_league']['battle_score_df'] = battle_score
+    g_result['current_league']['bar_chart'] = bar_chart
+    g_result['current_league']['radar_charts'] = radar_charts
 
     return { 'status': 'success' }, 200
 
