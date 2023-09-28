@@ -9,6 +9,7 @@ Web application to display yahoo fantasy basketball data analysis result.
 - Pandas/matplotlib - Create all kinds of chart
 - Yahoo OAuth - Yahoo Authorization
 - Yahoo Fantasy API - Read data using Restful API
+- Use polling for long time request
 - Route53 - Register a domain for deployment
 - [aws-lambda-web-adapter](https://github.com/awslabs/aws-lambda-web-adapter) - deploy the web application to AWS
 

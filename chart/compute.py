@@ -5,12 +5,7 @@ import pandas as pd
 from pandas import DataFrame
 from scipy.stats import rankdata
 import numpy as np
-# import re
-# import matplotlib.pyplot as plt
-# import os
-# import numpy as np
-# from io import BytesIO
-# import base64
+
 
 def format_dataframe(df):
     ''' Given a data frame, format the element value as str, like 3., 3.0, format it as 3
@@ -20,7 +15,6 @@ def format_dataframe(df):
     if (s.endswith('.') or s.endswith('.0')):
         r = int(value)
 
-    print(value, s, r)
     return str(r)
 
 def data_to_ranking_score(values, reverse = False):

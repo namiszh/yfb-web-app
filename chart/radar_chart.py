@@ -8,15 +8,13 @@ import numpy as np
 from app import cnFontProp
 
 def league_radar_charts(week_df, total_df, week):
-    # print(week_df)
-    # print(total_df)
     charts = []
 
     # get the stat names, need to remove the last column 'total'
     stat_names = week_df.columns.values.tolist()[:-1]
-    # print(stat_names)
+    # app.logger.debug(stat_names)
     team_names = week_df.index.tolist()
-    # print(team_names)
+    # app.logger.debug(team_names)
 
     for team_name in team_names:
         # get the stat scores, need to remove the last column 'total'
@@ -24,14 +22,14 @@ def league_radar_charts(week_df, total_df, week):
         total_score = total_df.loc[team_name].values.tolist()[:-1]
         chart = get_radar_chart(stat_names, team_name, total_score, week_score, len(team_names), week)
         charts.append(chart)
-    
+
     return charts
 
 
 def get_radar_chart(labels, title, season_values, week_values, limit, week):
-    # print(season_values)
-    # print(week_values)
-    # print(limit)
+    # app.logger.debug(season_values)
+    # app.logger.debug(week_values)
+    # app.logger.debug(limit)
 
     # Number of variables we're plotting.
     num_vars = len(labels)
@@ -103,4 +101,6 @@ def get_radar_chart(labels, title, season_values, week_values, limit, week):
     figdata_png = base64.b64encode(figfile.getvalue())
     figdata_png = figdata_png.decode('utf8')
 
+    plt.close()
+    
     return figdata_png

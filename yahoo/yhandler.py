@@ -2,6 +2,7 @@
 
 import objectpath
 import datetime
+from app import app
 
 YAHOO_ENDPOINT = 'https://fantasysports.yahooapis.com/fantasy/v2'
 
@@ -36,7 +37,7 @@ class YHandler:
         if today.month < 10 or (today.month == 10 and today.day < 25): # nba season usually starts at the end of Oct
             season -= 1
 
-        print('=== get leagues for season', season)
+        app.logger.info('========== get leagues for season {}'.format(season))
         uri = 'users;use_login=1/games;game_codes=nba;seasons={}/leagues'.format(season)
         resp = self._get(uri)
         t = objectpath.Tree(resp)
@@ -49,7 +50,8 @@ class YHandler:
         # sort by league id
         leagues.sort(key = lambda league : int(league['league_id']))
 
-        # print(leagues)
+        app.logger.debug('++++++++ leagues')
+        app.logger.debug(leagues)
         # [{
         #     'league_key': '418.l.23727',
         #     'league_id': '23727',
@@ -87,7 +89,8 @@ class YHandler:
         # sort by league id
         categories.sort(key = lambda stat : int(stat['stat_id']))
 
-        # print(categories)
+        app.logger.debug('++++++++ categories')
+        app.logger.debug(categories)
         # [{
         #     'stat_id': 5,
         #     'display_name': 'FG%',
@@ -169,7 +172,8 @@ class YHandler:
         # # sort by team id
         teams.sort(key = lambda team : int(team['team_id']))
 
-        # print(teams)
+        app.logger.debug('++++++++ teams')
+        app.logger.debug(teams)
         # [{
         # 'team_key': '418.l.23727.t.1',
         # 'team_id': '1',
@@ -273,9 +277,9 @@ class YHandler:
             uri = 'team/{}/stats;type=season'.format(team_key)
         else:
             uri = 'team/{}/stats;type=week;week={}'.format(team_key, week)
-        # print(uri)
+        # app.logger.debug(uri)
         resp = self._get(uri)
-        # print(resp)
+        # app.logger.debug(resp)
         t = objectpath.Tree(resp)
         jfilter = t.execute('$..team_stats..stats..(stat_id, value)')
 
@@ -300,11 +304,11 @@ class YHandler:
                 sort_order = game_stat_categories[stat_id]['sort_order']
                 sort_orders.append(sort_order)
 
-        # print(stats)
+        # app.logger.debug(stats)
         # {'FG%': 0.455, 'FT%': 0.746, '3PTM': 32, 'PTS': 322, 'OREB': 48, 'REB': 177, 'AST': 82, 'ST': 17, 'BLK': 17, 'TO': 38, 'A/T': 2.16}
-        # print(data_types)
+        # app.logger.debug(data_types)
         # {'FG%': 'float', 'FT%': 'float', '3PTM': 'int', 'PTS': 'int', 'OREB': 'int', 'REB': 'int', 'AST': 'int', 'ST': 'int', 'BLK': 'int', 'TO': 'int', 'A/T': 'float'}
-        # print(sort_orders)
+        # app.logger.debug(sort_orders)
         # ['1', '1', '1', '1', '1', '1', '1', '1', '1', '0', '1']
 
         return stats, data_types, sort_orders
@@ -324,7 +328,8 @@ class YHandler:
         for c in jfilter:
             categories[c['stat_id']] = c
 
-        # print(categories)
+        app.logger.debug('++++++++ categories')
+        app.logger.debug(categories)
         # {
         # 0: {
         #     'stat_id': 0,
@@ -511,6 +516,7 @@ class YHandler:
         response = self.oauth.request("{}/{}".format(YAHOO_ENDPOINT, uri),
                                        params={'format': 'json'})
         if response.status_code != 200:
+            app.logger.error('========== request to {}/{} failed with error code {}'.format(YAHOO_ENDPOINT, uri, response.status_code))
             raise RuntimeError(response.content)
         jresp = response.json()
         return jresp

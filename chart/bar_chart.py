@@ -3,7 +3,7 @@
 
 from io import BytesIO
 import base64
-import matplotlib.pyplot as plt
+from matplotlib import pyplot as plt
 import numpy as np
 from app import cnFontProp
 
@@ -53,6 +53,7 @@ def league_bar_chart(names, week_scores, total_scores, title, week):
     figfile.seek(0)  # rewind to beginning of file
     figdata_png = base64.b64encode(figfile.getvalue())
     figdata_png = figdata_png.decode('utf8')
+    plt.close()
 
     return figdata_png
 
