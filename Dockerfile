@@ -10,4 +10,4 @@ COPY templates ./templates
 COPY yahoo ./yahoo
 RUN python -m pip install pip==21.3.1
 RUN pip install -r requirements.txt
-CMD ["gunicorn", "-b=:8080", "-w=1", "--threads=4", "--timeout=600", "--log-level=debug", "app:app"]
+CMD ["gunicorn", "-b=:8080", "-w=1", "--timeout=600", "--log-level=debug", "app:app"]

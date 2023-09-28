@@ -3,7 +3,7 @@
 
 from io import BytesIO
 import base64
-import matplotlib.pyplot as plt
+from matplotlib import pyplot as plt
 import numpy as np
 from app import cnFontProp
 
@@ -102,5 +102,5 @@ def get_radar_chart(labels, title, season_values, week_values, limit, week):
     figdata_png = figdata_png.decode('utf8')
 
     plt.close()
-    
+
     return figdata_png

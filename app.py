@@ -18,7 +18,7 @@ dictConfig({
         'formatter': 'default'
     }},
     'root': {
-        'level': 'DEBUG',
+        'level': 'INFO',
         'handlers': ['wsgi']
     }
 })
@@ -40,7 +40,6 @@ yHandler = YHandler(yOauth)
 import matplotlib
 matplotlib.use('Agg')
 from matplotlib import font_manager
-app.logger.debug('++++++++ '+ app.config['CHINESE_FONT_FILE'])
 cnFontProp = font_manager.FontProperties(fname=app.config['CHINESE_FONT_FILE'])
 # cnFontProp.set_family('SimHei')
 # cnFontProp.set_size(8)
@@ -59,10 +58,4 @@ lm.login_view = 'login'
 
 
 from routes import views, auth
-from routes.views import polling_bp
-from routes.after_response import AfterResponse
-
-with app.app_context():
-    app.register_blueprint(polling_bp, url_prefix='/')
-    AfterResponse(app)
     

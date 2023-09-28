@@ -29,10 +29,11 @@ app.logger.debug('++++++++ project Root {}'.format(PROJECT_ROOT))
 # SQLALCHEMY_MIGRATE_REPO = os.path.join(PROJECT_ROOT, 'db_repository')
 
 CREDENTIALS_FILE = os.path.join(PROJECT_ROOT, 'credentials')
-app.logger.debug('credential file ' + CREDENTIALS_FILE)
+app.logger.debug('++++++++ credential file {}'.format(CREDENTIALS_FILE))
 
 # This font file is used to support Chinese in chart
 CHINESE_FONT_FILE = os.path.join(PROJECT_ROOT, 'static/fonts/SimSun-01.ttf')
+app.logger.debug('++++++++ Chinese font file {}'.format(CHINESE_FONT_FILE))
 # app.logger.debug(CHINESE_FONT_FILE)
 
 

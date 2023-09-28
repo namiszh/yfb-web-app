@@ -1,24 +1,30 @@
-function startAnalysis(league_id, week) {
-    fetch(`/${league_id}/${week}/polling`, { method: 'GET' })
-    .then(resp => resp.json())
-    .then(result => {
- 
-        if (result.status !== 'finished') {
-            // update progress bar
-            progress = result.progress
-            let elemProgressBar = document.querySelector('.progress-bar');
-            elemProgressBar.style.width = `${progress}%`;
-            elemProgressBar.innerText = `${progress}%`;
+function updateProgressBar(progress){
+    progress = Math.round(progress)
+    let elemProgressBar = document.querySelector('.progress-bar');
+    elemProgressBar.style.width = `${progress}%`;
+    elemProgressBar.innerText = `${progress}%`;   
+}
 
-            // send request again after 1 second
-            setTimeout(function() {
-                startAnalysis(league_id, week);
-            } , 1000);
-        } else {
-            window.location.href = `/${league_id}/${week}`;
-        }
-    })
-    .catch(errorMsg => { console.log(errorMsg); });
+async function startAnalysis(league_id, week) {
+
+    let progress = 0;
+    updateProgressBar(progress);
+    
+    await fetch(`/${league_id}/${week}/start`, { method: 'GET' });
+    const resp = await (await fetch(`/${league_id}/teams`, { method: 'GET' })).json();
+
+    let team_num = resp.team_ids.length;
+    let step = 90 / team_num;  // make the progress bar shows 60% after retriveing data from yahoo
+    for (let i = 0; i < team_num; i++) {
+        let team_id = resp.team_ids[i];
+        await fetch(`/stat/${league_id}/${week}/${team_id}`, { method: 'GET' })
+        progress += step;
+        updateProgressBar(progress);
+    }
+    
+    await fetch(`/${league_id}/${week}/analyze`, { method: 'GET' })
+    updateProgressBar(100);
+    window.location.href = `/${league_id}/${week}`;
 }
 
 
