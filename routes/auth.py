@@ -29,13 +29,13 @@ def login():
       This method is called when user clicks 'Sign in'
     '''
     if not current_user.is_anonymous:
-        app.logger.info('========== not anonymous')
+        app.logger.info('not anonymous')
         return redirect(url_for('main'))
     elif not yOauth.is_authorized():
-        app.logger.info('========== not authorized by yahoo')
+        app.logger.info('not authorized by yahoo')
         return redirect(url_for('oauth_authorize'))
     else:
-        app.logger.info('========== already signed in to yahoo')
+        app.logger.info('already signed in to yahoo')
         _loginAction()
 
         return redirect(url_for('main'))
@@ -63,6 +63,6 @@ def oauth_callback():
 
 def _loginAction():
     user_id = yHandler.get_user_id()
-    app.logger.info('========== user id: {}'.format(user_id))
+    app.logger.info('user id: {}'.format(user_id))
     user = User(user_id)
     # login_user(user)

@@ -104,10 +104,10 @@ def get_league_info(league_id, week):
 
             min_week = start_week # display in page
             max_week = current_week # display in page
-            app.logger.debug('++++++++ league name: {}'.format(league_name))
-            app.logger.debug('++++++++ start week: {}'.format(start_week))
-            app.logger.debug('++++++++ current week: {}'.format( current_week))
-            app.logger.debug('++++++++ end week: {}'.format( int(league['end_week'])))
+            app.logger.debug('league name: {}'.format(league_name))
+            app.logger.debug('start week: {}'.format(start_week))
+            app.logger.debug('current week: {}'.format( current_week))
+            app.logger.debug('end week: {}'.format( int(league['end_week'])))
             weekday = today.weekday()
             if weekday <= 1 and today < end_date:
                 max_week -= 1
@@ -120,9 +120,9 @@ def get_league_info(league_id, week):
                     display_week -= 1
             else: # input (week) is valid, use it
                 display_week = week
-            app.logger.debug('++++++++ min week: {}'.format(min_week))
-            app.logger.debug('++++++++ max week: {}'.format(max_week))
-            app.logger.debug('++++++++ display week: {}'.format(display_week))
+            app.logger.debug('min week: {}'.format(min_week))
+            app.logger.debug('max week: {}'.format(max_week))
+            app.logger.debug('display week: {}'.format(display_week))
             
             break
 
@@ -278,15 +278,15 @@ def analyze(league_id, week):
     # g_result['current_league']['bar_chart'] = bar_chart
     # g_result['current_league']['radar_charts'] = radar_charts
 
-    app.logger.debug('++++++++  Week {} stats'.format(week))
+    app.logger.debug(' Week {} stats'.format(week))
     app.logger.debug('\t'+ week_df.to_string().replace('\n', '\n\t'))
-    app.logger.debug('++++++++  Week {} scores'.format(week))
+    app.logger.debug(' Week {} scores'.format(week))
     app.logger.debug('\t'+ week_score.to_string().replace('\n', '\n\t'))
-    app.logger.debug('++++++++  Week {} batter score'.format(week))
+    app.logger.debug(' Week {} batter score'.format(week))
     app.logger.debug('\t'+ battle_score.to_string().replace('\n', '\n\t'))
-    app.logger.debug('++++++++  Total stats')
+    app.logger.debug(' Total stats')
     app.logger.debug('\t'+ total_df.to_string().replace('\n', '\n\t'))
-    app.logger.debug('++++++++  Total stats')
+    app.logger.debug(' Total stats')
     app.logger.debug('\t'+ total_score.to_string().replace('\n', '\n\t'))
 
 

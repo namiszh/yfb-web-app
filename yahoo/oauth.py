@@ -16,6 +16,8 @@ class YOAuth(object):
         This class hands yahoo oauth things
     '''
     def __init__(self, credentials_file, base_url="http://fantasysports.yahooapis.com/fantasy/v2/"):
+
+        app.logger.debug('YOAuth initialization')
         # load credentials
         with open(credentials_file, "r") as f:
             credentials = f.read().splitlines()
@@ -50,7 +52,7 @@ class YOAuth(object):
 
 
     def is_authorized(self):
-        # app.logger.debug('++++++++ access token' + self.access_token)
+        # app.logger.debug('access token' + self.access_token)
         return self.access_token is not None
 
 
@@ -66,7 +68,7 @@ class YOAuth(object):
             response_type='code',
             redirect_uri = callback_url,
             scope = 'openid')
-        app.logger.info('========== redirecting to {} for authorization'.format(auth_url))
+        app.logger.info('redirecting to {} for authorization'.format(auth_url))
         return redirect(auth_url)
 
 
@@ -75,14 +77,12 @@ class YOAuth(object):
           Get code after login in
           Please call this method when request route('/callback')
         '''
-        app.logger.info('========== redirecting to callback after authorization')
         if 'code' not in request.args:
-            app.logger.error('========== code not in request.args: {}'.format(request.args))
+            app.logger.error('code not in request.args: {}'.format(request.args))
             return None, None, None
 
         self.code = request.args['code']
-
-        app.logger.info('========== authorization code: {}'.format( self.code))
+        app.logger.info('redirecting to callback after authorization with authorization code: {}'.format( self.code))
 
         # exchange code for token
         self._update_token()
@@ -91,20 +91,20 @@ class YOAuth(object):
     def request(self, request_str, params={'format': 'json'}):
         ''' Response to a user request '''
 
-        app.logger.debug('++++++++ Get request: url = {}, params = {}'.format(request_str, params))
+        app.logger.debug('Get request: url = {}, params = {}'.format(request_str, params))
         if not self.is_authorized():
-            app.logger.debug('++++++++ not authorized yet')
+            app.logger.debug('not authorized yet, redirect to authorization')
             self.authorize()
+        else:
+            now = time.time()
+            if self.expiration_time - now < 60:  # expiring soon (in 1 minute), refresh token
+                app.logger.info("expiring in 1 minute, need to refresh token.  Expiration time: {}, Now:{}".format(self.expiration_time, now))
+                self._update_token()
 
-        now = time.time()
-        if self.expiration_time - now < 60:  # expiring soon (in 1 minute), refresh token
-            app.logger.info("========== expiring in 1 minute, need to refresh token.  Expiration time: {}, Now:{}".format(self.expiration_time, now))
-            self._update_token()
+            if self.session is None:
+                self.session = self.service.get_session(self.access_token)
 
-        if self.session is None:
-            self.session = self.service.get_session(self.access_token)
-
-        return self.session.get(url=request_str, params=params)
+            return self.session.get(url=request_str, params=params)
 
 
     def _update_token(self):
@@ -114,7 +114,7 @@ class YOAuth(object):
              2. refresh token before access token expires
         '''
         callback_url = self._get_callback_url()
-        app.logger.info('========== callbarck url: {}'.format(callback_url))
+        app.logger.debug('callbarck url: {}'.format(callback_url))
 
         # if we have already refresh token, that means we are refreshing token now
         if self.refresh_token:
@@ -123,24 +123,24 @@ class YOAuth(object):
                         "redirect_uri": callback_url,
                         "grant_type": "refresh_token",
                     }
-            app.logger.debug('++++++++ refresh token using token {}'.format(self.refresh_token))
+            app.logger.debug('refresh token using token {}'.format(self.refresh_token))
         else:
             data =  {
                         "code": self.code,
                         "redirect_uri": callback_url,
                         "grant_type": "authorization_code",
                     }
-            app.logger.debug('++++++++ exchange token from code {}'.format(self.code))
+            app.logger.debug('exchange token from code {}'.format(self.code))
 
         raw_token = self.service.get_raw_access_token(data=data, headers=self.headers)
         parsed_token = raw_token.json()
-        app.logger.debug('++++++++ parsed_token: {}'.format(parsed_token))
+        app.logger.debug('parsed_token: {}'.format(parsed_token))
         self.access_token = parsed_token["access_token"]
-        app.logger.debug(' ++++++++ access token: {}'.format(self.access_token))
+        app.logger.debug(' access token: {}'.format(self.access_token))
         self.refresh_token = parsed_token["refresh_token"]
-        app.logger.debug(' ++++++++ refresh token: {}'.format(self.refresh_token))
+        app.logger.debug(' refresh token: {}'.format(self.refresh_token))
         self.expiration_time = time.time() + parsed_token["expires_in"]
-        app.logger.debug(' ++++++++ expiration time: {}'.format(self.expiration_time))
+        app.logger.info(' expiration time: {}'.format(self.expiration_time))
 
         # get session by access token
         self.session = self.service.get_session(self.access_token)

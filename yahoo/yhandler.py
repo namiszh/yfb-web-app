@@ -12,6 +12,7 @@ class YHandler:
 
     def __init__(self, yOauth):
         self.oauth = yOauth
+        app.logger.debug('YHandler initialization')
 
     def get_user_id(self):
         '''
@@ -37,7 +38,7 @@ class YHandler:
         if today.month < 10 or (today.month == 10 and today.day < 25): # nba season usually starts at the end of Oct
             season -= 1
 
-        app.logger.info('========== get leagues for season {}'.format(season))
+        app.logger.info('get leagues for season {}'.format(season))
         uri = 'users;use_login=1/games;game_codes=nba;seasons={}/leagues'.format(season)
         resp = self._get(uri)
         t = objectpath.Tree(resp)
@@ -50,7 +51,7 @@ class YHandler:
         # sort by league id
         leagues.sort(key = lambda league : int(league['league_id']))
 
-        app.logger.debug('++++++++ leagues')
+        app.logger.debug('leagues')
         app.logger.debug(leagues)
         # [{
         #     'league_key': '418.l.23727',
@@ -89,7 +90,7 @@ class YHandler:
         # sort by league id
         categories.sort(key = lambda stat : int(stat['stat_id']))
 
-        app.logger.debug('++++++++ categories')
+        app.logger.debug('categories')
         app.logger.debug(categories)
         # [{
         #     'stat_id': 5,
@@ -154,13 +155,20 @@ class YHandler:
         uri = 'league/{}/teams'.format(league_key)
         resp = self._get(uri)
         t = objectpath.Tree(resp)
-        jfilter = t.execute('$..teams..team..(team_key, team_id, name, team_logos)')
+        jfilter = t.execute('$..teams..team..(team_key, team_id, name, team_logos, managers)')
 
         teams = []
         t = {}
         for p in jfilter:
+            # app.logger.debug(p)
             if ('team_logos' in p):
                 t['team_logos'] = p['team_logos'][0]['team_logo']['url']
+            elif ('managers' in p):
+                for x in p['managers']:
+                    manager = x['manager']
+                    if 'is_current_login' in manager:
+                        app.logger.info('Current user: nickname={}, email = {}, guid ={}'.format(manager['nickname'], manager['email'], manager['guid']))
+                    break
             else:
                 t.update(p)
 
@@ -172,7 +180,7 @@ class YHandler:
         # # sort by team id
         teams.sort(key = lambda team : int(team['team_id']))
 
-        app.logger.debug('++++++++ teams')
+        app.logger.debug('teams')
         app.logger.debug(teams)
         # [{
         # 'team_key': '418.l.23727.t.1',
@@ -328,7 +336,7 @@ class YHandler:
         for c in jfilter:
             categories[c['stat_id']] = c
 
-        app.logger.debug('++++++++ categories')
+        app.logger.debug('categories')
         app.logger.debug(categories)
         # {
         # 0: {
@@ -516,7 +524,7 @@ class YHandler:
         response = self.oauth.request("{}/{}".format(YAHOO_ENDPOINT, uri),
                                        params={'format': 'json'})
         if response.status_code != 200:
-            app.logger.error('========== request to {}/{} failed with error code {}'.format(YAHOO_ENDPOINT, uri, response.status_code))
+            app.logger.error('request to {}/{} failed with error code {}'.format(YAHOO_ENDPOINT, uri, response.status_code))
             raise RuntimeError(response.content)
         jresp = response.json()
         return jresp
