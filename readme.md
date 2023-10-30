@@ -53,7 +53,7 @@ goto https://fba.laohuang.org and try it, you need to sign in with your Yahoo ac
 1. install dependency
    `pip isntall -r requirements.txt`
 
-1. edit the credential file in the root folder. Put the *Client ID (Consumer Key)* in the first line, and *Client Secret (Consumer Secret)* in the second line.
+1. creat a file named 'credential'  in the root folder. Put the *Client ID (Consumer Key)* in the first line, and *Client Secret (Consumer Secret)* in the second line.
    ![Yahoo Application credential](/flask-web-app/docs/credentaial.png)
 
 1. run the application
