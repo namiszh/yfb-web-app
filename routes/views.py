@@ -5,8 +5,8 @@
     copyright: (c) 2022 by Shaozuo Huang
 """
 
-from flask import render_template, url_for, redirect
-from flask_login import login_required
+from flask import render_template, url_for, redirect, make_response, request
+from flask_login import login_required, current_user
 import pandas as pd
 import datetime
 import time
@@ -136,14 +136,14 @@ def get_league_info(league_id, week):
 
     return league_id, league_name, min_week, max_week, display_week
 
-@login_required
 @app.route('/main')
+@login_required
 def main():
     leagues = get_leagues()
     return render_template('main.html', leagues = leagues) # should be error for no league
 
-@login_required
 @app.route('/<league_id>/<int:week>/start')
+@login_required
 def start(league_id, week):
     global g_result
 
@@ -175,8 +175,8 @@ def start(league_id, week):
 
     return { 'status': 'success' }, 200
 
-@login_required
 @app.route('/<league_id>/teams')
+@login_required
 def leaguge_teams(league_id):
 
     teams =  get_league_teams(league_id)
@@ -184,8 +184,8 @@ def leaguge_teams(league_id):
         
     return { 'team_ids': team_ids }, 200 
 
-@login_required
 @app.route('/stat/<league_id>/<int:week>/<team_id>')
+@login_required
 def team_stat(league_id, week, team_id):
     global g_result
     teams =  get_league_teams(league_id)
@@ -227,8 +227,8 @@ def team_stat(league_id, week, team_id):
     return { 'status': 'success' }, 200
 
 
-@login_required
 @app.route('/<league_id>/<int:week>/analyze')
+@login_required
 def analyze(league_id, week):
     global g_result
 
@@ -292,8 +292,8 @@ def analyze(league_id, week):
 
     return { 'status': 'success' }, 200
 
-@login_required
 @app.route('/<league_id>/<int:week>/chart')
+@login_required
 def chart(league_id, week):
     global g_result
 
@@ -321,9 +321,9 @@ def chart(league_id, week):
     return { 'status': 'success' }, 200
 
 
-@login_required
 @app.route('/<league_id>', defaults={'week': None})
 @app.route('/<league_id>/<int:week>')
+@login_required
 def showresult(league_id, week):
     global g_result
     

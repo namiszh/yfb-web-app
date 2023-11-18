@@ -35,3 +35,5 @@ six
 SQLAlchemy
 urllib3
 Werkzeug
+PyJWT
+flask_migrate

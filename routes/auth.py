@@ -15,30 +15,37 @@ from models.user import User
 
 @lm.user_loader
 def load_user(id):
-    return User.query.get(id)
+    app.logger.debug('load user {}'.format(id))
+    u= User.query.get(id)
+    app.logger.debug(u)
+    return u
+
 
 @app.route("/logout")
 @login_required
 def logout():
-    logout_user()
+    app.logger.debug('current_user before logout:')
+    app.logger.debug(current_user)
+    if current_user.is_authenticated:
+        logout_user()   
+
     return redirect(url_for('index'))
+
 
 @app.route('/login')
 def login():
     '''
       This method is called when user clicks 'Sign in'
     '''
-    if not current_user.is_anonymous:
-        app.logger.info('not anonymous')
+    app.logger.debug('current_user before login:')
+    app.logger.debug(current_user)
+    if current_user.is_authenticated:
+        app.logger.info('user {} already authenticated'.format(current_user.user_id))
         return redirect(url_for('main'))
-    elif not yOauth.is_authorized():
-        app.logger.info('not authorized by yahoo')
-        return redirect(url_for('oauth_authorize'))
-    else:
-        app.logger.info('already signed in to yahoo')
-        _loginAction()
 
-        return redirect(url_for('main'))
+    app.logger.info('not authorized by yahoo')
+    return redirect(url_for('oauth_authorize'))
+
 
 
 @app.route('/authorize')
@@ -56,13 +63,6 @@ def oauth_callback():
     '''
     yOauth.callback()
 
-    _loginAction()
-
     return redirect(url_for('main'))
 
 
-def _loginAction():
-    user_id = yHandler.get_user_id()
-    app.logger.info('user id: {}'.format(user_id))
-    user = User(user_id)
-    # login_user(user)

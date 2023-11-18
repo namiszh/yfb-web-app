@@ -51,10 +51,17 @@ goto https://fba.laohuang.org and try it, you need to sign in with your Yahoo ac
    `python -m pip install pip==21.3.1`
 
 1. install dependency
-   `pip isntall -r requirements.txt`
+   `pip install -r requirements.txt`
 
 1. creat a file named 'credential'  in the root folder. Put the *Client ID (Consumer Key)* in the first line, and *Client Secret (Consumer Secret)* in the second line.
    ![Yahoo Application credential](/flask-web-app/docs/credentaial.png)
+
+1. create database
+   ```
+   flask db init
+   flask db migrate -m "create User table"
+   flask db upgrade
+   ```
 
 1. run the application
    `flask run --cert=.\cert\cert.pem --key=.\cert\key.pem --debugger`

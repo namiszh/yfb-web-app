@@ -5,17 +5,20 @@
     copyright: (c) 2022 by Shaozuo Huang
 """
 from flask import request, redirect, url_for
+from flask_login import current_user, login_user
 from rauth import OAuth2Service
 import base64
 import time
 from rauth.compat import urlencode
+import jwt
+from models.user import User, insert_or_update_user
 from app import app
 
 class YOAuth(object):
     '''
         This class hands yahoo oauth things
     '''
-    def __init__(self, credentials_file, base_url="http://fantasysports.yahooapis.com/fantasy/v2/"):
+    def __init__(self, credentials_file, base_url="https://fantasysports.yahooapis.com/fantasy/v2/"):
 
         app.logger.debug('YOAuth initialization')
         # load credentials
@@ -41,20 +44,6 @@ class YOAuth(object):
             'Content-Type': 'application/x-www-form-urlencoded'
         }
 
-        # tokens
-        self.code = None
-        self.access_token = None
-        self.refresh_token = None
-        self.expiration_time = time.time()
-
-        # session
-        self.session = None
-
-
-    def is_authorized(self):
-        # app.logger.debug('access token' + self.access_token)
-        return self.access_token is not None
-
 
     def authorize(self):
         '''
@@ -62,8 +51,6 @@ class YOAuth(object):
           Please call this method when user request route('/authorize')
         '''
         callback_url = self._get_callback_url()
-        # print ('redirect url is', callback_url)
-        # auth_url = 'https://api.login.yahoo.com/oauth2/request_auth?response_type=code&scope=openid%20email%20profile%20openid2&' + urlencode({'redirect_uri': callback_url })
         auth_url = self.service.get_authorize_url(
             response_type='code',
             redirect_uri = callback_url,
@@ -81,33 +68,36 @@ class YOAuth(object):
             app.logger.error('code not in request.args: {}'.format(request.args))
             return None, None, None
 
-        self.code = request.args['code']
-        app.logger.info('redirecting to callback after authorization with authorization code: {}'.format( self.code))
+        code = request.args['code']
+        app.logger.debug('exchange token from code {}'.format(code))
+        data =  {
+                    "code": code,
+                    "grant_type": "authorization_code",
+                }
 
         # exchange code for token
-        self._update_token()
+        return self._update_token(data)
 
 
     def request(self, request_str, params={'format': 'json'}):
         ''' Response to a user request '''
 
-        app.logger.debug('Get request: url = {}, params = {}'.format(request_str, params))
-        if not self.is_authorized():
-            app.logger.debug('not authorized yet, redirect to authorization')
-            self.authorize()
-        else:
-            now = time.time()
-            if self.expiration_time - now < 60:  # expiring soon (in 1 minute), refresh token
-                app.logger.info("expiring in 1 minute, need to refresh token.  Expiration time: {}, Now:{}".format(self.expiration_time, now))
-                self._update_token()
+        app.logger.debug(' request from user: {}'.format(current_user.user_id))
 
-            if self.session is None:
-                self.session = self.service.get_session(self.access_token)
+        # expiring soon (in 1 minute), refresh token
+        if current_user.expiration_time - time.time() < 60:  
+            app.logger.info("expiring in 1 minute, need to refresh token.  Expiration time: {}, Now:{}".format(current_user.expiration_time, now))
+            data =  {
+                 "refresh_token": current_user.refresh_token,
+                 "grant_type": "refresh_token",
+             }
+            self._update_token(data)
+        
+        session = self.service.get_session(current_user.access_token)
+        return session.get(url=request_str, params=params)
 
-            return self.session.get(url=request_str, params=params)
 
-
-    def _update_token(self):
+    def _update_token(self, data):
         '''
             Call this method when you need to:
              1. Get access token from code after authorize
@@ -115,35 +105,26 @@ class YOAuth(object):
         '''
         callback_url = self._get_callback_url()
         app.logger.debug('callbarck url: {}'.format(callback_url))
-
-        # if we have already refresh token, that means we are refreshing token now
-        if self.refresh_token:
-            data =  {
-                        "refresh_token": self.refresh_token,
-                        "redirect_uri": callback_url,
-                        "grant_type": "refresh_token",
-                    }
-            app.logger.debug('refresh token using token {}'.format(self.refresh_token))
-        else:
-            data =  {
-                        "code": self.code,
-                        "redirect_uri": callback_url,
-                        "grant_type": "authorization_code",
-                    }
-            app.logger.debug('exchange token from code {}'.format(self.code))
-
+        data['redirect_uri'] = callback_url
         raw_token = self.service.get_raw_access_token(data=data, headers=self.headers)
         parsed_token = raw_token.json()
-        app.logger.debug('parsed_token: {}'.format(parsed_token))
-        self.access_token = parsed_token["access_token"]
-        app.logger.debug(' access token: {}'.format(self.access_token))
-        self.refresh_token = parsed_token["refresh_token"]
-        app.logger.debug(' refresh token: {}'.format(self.refresh_token))
-        self.expiration_time = time.time() + parsed_token["expires_in"]
-        app.logger.info(' expiration time: {}'.format(self.expiration_time))
+        # app.logger.debug('parsed_token: {}'.format(parsed_token))
+        access_token = parsed_token["access_token"]
+        app.logger.debug(' access token: {}'.format(access_token))
+        refresh_token = parsed_token["refresh_token"]
+        app.logger.debug(' refresh token: {}'.format(refresh_token))
+        expiration_time = time.time() + parsed_token["expires_in"]
+        app.logger.info(' expiration time: {}'.format(expiration_time))
+        id_token = jwt.decode(parsed_token["id_token"], options={"verify_signature": False})
+        # app.logger.debug(' id token: {}'.format(id_token))
+        user_id = id_token['sub']
+        app.logger.info(' user id: {}'.format(user_id))
 
-        # get session by access token
-        self.session = self.service.get_session(self.access_token)
+        user = User(user_id, access_token, refresh_token, expiration_time)
+        insert_or_update_user(user)
+        login_user(user, remember=True)
+        app.logger.debug('current_user')
+        app.logger.debug(current_user)
 
 
     def _get_callback_url(self):

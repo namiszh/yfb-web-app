@@ -7,3 +7,6 @@ __pycache__/
 venv/*
 credentials
 
+# database
+app.db
+migrations/

@@ -13,8 +13,6 @@ DEBUG=None
 
 SECRET_KEY = 'you-will-never-guess-hahahahaha-jdsf90asufwkjfcjsofusfchjs9027urhjwofj'
 
-# SQLALCHEMY_TRACK_MODIFICATIONS = False
-
 
 # project root directory
 PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
@@ -25,7 +23,8 @@ app.logger.debug('project Root {}'.format(PROJECT_ROOT))
 # # web application directory
 # WEB_APP_ROOT = os.path.abspath(os.path.join(os.path.dirname( __file__ ), 'app'))
 
-# SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(PROJECT_ROOT, 'app.db')
+SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(PROJECT_ROOT, 'app.db')
+SQLALCHEMY_TRACK_MODIFICATIONS = False
 # SQLALCHEMY_MIGRATE_REPO = os.path.join(PROJECT_ROOT, 'db_repository')
 
 CREDENTIALS_FILE = os.path.join(PROJECT_ROOT, 'credentials')

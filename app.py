@@ -18,7 +18,7 @@ dictConfig({
         'formatter': 'default'
     }},
     'root': {
-        'level': 'DEBUG',
+        'level': 'INFO',
         'handlers': ['wsgi']
     }
 })
@@ -28,6 +28,12 @@ from flask import Flask
 app = Flask(__name__)
 # read configuration from file config.py
 app.config.from_object('config')
+
+from flask_sqlalchemy import SQLAlchemy
+db = SQLAlchemy(app)
+
+from flask_migrate import Migrate
+migrate = Migrate(app, db)
 
 from yahoo.oauth import YOAuth
 from yahoo.yhandler import YHandler
@@ -46,10 +52,10 @@ cnFontProp = font_manager.FontProperties(fname=app.config['CHINESE_FONT_FILE'])
 
 from flask_login import LoginManager
 
-# db = SQLAlchemy(app)
 lm = LoginManager()
 lm.init_app(app)
 lm.login_view = 'login'
+
 
 # run application
 # if __name__ == "__main__": 

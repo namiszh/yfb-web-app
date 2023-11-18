@@ -2,6 +2,7 @@
 
 import objectpath
 import datetime
+from flask_login import current_user
 from app import app
 
 YAHOO_ENDPOINT = 'https://fantasysports.yahooapis.com/fantasy/v2'
@@ -167,7 +168,9 @@ class YHandler:
                 for x in p['managers']:
                     manager = x['manager']
                     if 'is_current_login' in manager:
-                        app.logger.info('Current user: nickname={}, email = {}, guid ={}'.format(manager['nickname'], manager['email'], manager['guid']))
+                        current_user.set_nickname(manager['nickname'])
+                        current_user.set_email(manager['email'])
+                        app.logger.info(current_user)
                     break
             else:
                 t.update(p)
