@@ -2,7 +2,6 @@ Flask
 flask_migrate
 Flask-Login
 Flask-SQLAlchemy
-gunicorn
 Jinja2
 matplotlib
 numpy
