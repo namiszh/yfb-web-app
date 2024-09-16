@@ -205,11 +205,15 @@ def team_stat(league_id, week, team_id):
 
             # get current week stat
             team_key = team['team_key']
-            week_stat, data_types, sort_orders = yHandler.get_team_stat(team_key, stat_categories, week)
+            week_stat, data_types, sort_orders, point = yHandler.get_team_stat(team_key, stat_categories, week)
 
             if 'week_stats' not in g_result['current_league'] or g_result['current_league']['week_stats'] is None:
                 g_result['current_league']['week_stats'] = []
             g_result['current_league']['week_stats'].append(week_stat)
+
+            if 'week_points' not in g_result['current_league'] or g_result['current_league']['week_points'] is None:
+                g_result['current_league']['week_points'] = []
+            g_result['current_league']['week_points'].append(point)
 
             g_result['current_league']['stat_names'] = week_stat.keys()
             g_result['current_league']['data_types'] = data_types
@@ -235,6 +239,7 @@ def analyze(league_id, week):
     league_name = g_result['current_league']['league_name']
     stat_names = g_result['current_league']['stat_names']
     week_stats = g_result['current_league']['week_stats']
+    week_points = g_result['current_league']['week_points']
     total_stats = g_result['current_league']['total_stats']
     data_types = g_result['current_league']['data_types']
     sort_orders = g_result['current_league']['sort_orders']
@@ -260,7 +265,7 @@ def analyze(league_id, week):
 
     week_score = stat_to_score(week_df, sort_orders)
     total_score = stat_to_score(total_df, sort_orders)
-    battle_score = roto_score_to_battle_score(week_score)
+    battle_score = roto_score_to_battle_score(week_score, week_points)
 
     # bar_chart = league_bar_chart(team_names, week_score['Total'], total_score['Total'], league_name, week)
     # radar_charts = league_radar_charts(week_score, total_score, week)
@@ -330,7 +335,10 @@ def showresult(league_id, week):
     team_number = len(g_result['current_league']['teams'])
     tie_score = len(g_result['current_league']['stat_names']) / 2
 
+    # green background
     style_top = 'background: linear-gradient(90deg, #5fba7d 100.0%, transparent 100.0%)'
+
+    # red background
     style_bottom = 'background: linear-gradient(90deg, #d65f5f 100.0%, transparent 100.0%)'
 
     # highligh max and min
@@ -344,7 +352,7 @@ def showresult(league_id, week):
           (style_bottom if float(value) == team_number else 
         '') for value in x])
     
-    # make ithe table pretty with different background color for win/lose/tie
+    # make the table pretty with different background color for win/lose/tie
     battle_score = g_result['current_league']['battle_score_df'].style.apply(
     lambda x: [ '' if value=='' else
         (style_top if float(value) < tie_score else

@@ -322,7 +322,18 @@ class YHandler:
         # app.logger.debug(sort_orders)
         # ['1', '1', '1', '1', '1', '1', '1', '1', '1', '0', '1']
 
-        return stats, data_types, sort_orders
+
+        if week==0:
+            return stats, data_types, sort_orders
+        else:
+            # for a single week, need to get the current point 
+            point = 0
+            result = t.execute('$..team_points.total')
+            for entry in result:
+                point = (float)(entry)
+                break
+
+            return stats, data_types, sort_orders, point
 
 
     def get_game_stat_categories(self):

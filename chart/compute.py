@@ -70,11 +70,15 @@ def compute_battle_score(scores_team1, scores_team2):
 
 
 
-def roto_score_to_battle_score(score_df):
+def roto_score_to_battle_score(score_df, week_points):
     '''Give the roto score of a league for a week, calculate the matchup score against every other player
     '''
 
     battle_df = pd.DataFrame(columns=score_df.index, index=score_df.index) 
+
+    # add a column named 'Ave' representing the average points he can get in this week
+    # battle_df = battle_df.assign(AVE='NAN')
+    # battle_df = battle_df.assign(DIF='NAN')
 
     team_scores = score_df.to_numpy()
     for i in range(len(team_scores) ):
@@ -83,5 +87,16 @@ def roto_score_to_battle_score(score_df):
             battle_df.iat[i, j] = score1
             battle_df.iat[j, i] = score2
 
-    return battle_df
+    # calculate the median point a team can get
+    battle_df['中位数'] = battle_df.median(axis=1)
+
+    # the current point a team gets
+    battle_df['本周得分'] = week_points
+
+    # calculate the median point a team can get
+    battle_df['分差'] = battle_df['本周得分'] - battle_df['中位数']
+
+    final_df = battle_df.sort_values(by=['分差', '本周得分'], ascending=False)
+
+    return final_df
             
