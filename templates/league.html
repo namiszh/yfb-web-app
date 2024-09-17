@@ -93,8 +93,15 @@
         <div class="tab-pane fade show active" id="pills-bar" role="tabpanel" aria-labelledby="pills-bar-tab">
             <div class="row row-md-3 row-sm-3 row-xs-3">
                 <div class="col">
-                    {% if bar_chart != None %}
-                    <img src="data:image/png;base64,{{ bar_chart }}">
+                    {% if week_bar_chart != None %}
+                    <img src="data:image/png;base64,{{ week_bar_chart }}">
+                    {% endif %}
+                </div>
+            </div>
+            <div class="row row-md-3 row-sm-3 row-xs-3">
+                <div class="col">
+                    {% if week_bar_chart != None %}
+                    <img src="data:image/png;base64,{{ total_bar_chart }}">
                     {% endif %}
                 </div>
             </div>

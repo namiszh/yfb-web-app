@@ -164,7 +164,8 @@ def start(league_id, week):
         'week_score_df': None,
         'total_score_df': None,
         'battle_score_df': None,
-        'bar_chart': None,
+        'week_bar_chart': None,
+        'total_bar_chart': None,
         'radar_charts': None   
     }
 
@@ -309,7 +310,8 @@ def chart(league_id, week):
     teams = g_result['current_league']['teams']
     team_names = list(map(lambda x: x['name'], teams))
 
-    bar_chart = league_bar_chart(team_names, week_score['Total'], total_score['Total'], league_name, week)
+    week_bar_chart = league_bar_chart(week_score, '{} 战力榜 - Week {}'.format(league_name, week))
+    total_bar_chart = league_bar_chart(total_score, '{} 战力榜 - Total'.format(league_name))
     radar_charts = league_radar_charts(week_score, total_score, week)
 
     # format output
@@ -320,7 +322,8 @@ def chart(league_id, week):
     g_result['current_league']['week_score_df'] = week_score
     g_result['current_league']['total_score_df'] = total_score
     g_result['current_league']['battle_score_df'] = battle_score
-    g_result['current_league']['bar_chart'] = bar_chart
+    g_result['current_league']['week_bar_chart'] = week_bar_chart
+    g_result['current_league']['total_bar_chart'] = total_bar_chart
     g_result['current_league']['radar_charts'] = radar_charts
 
     return { 'status': 'success' }, 200
@@ -370,6 +373,7 @@ def showresult(league_id, week):
         week_rank = week_score,
         total_rank = total_score,
         battle_score= battle_score,
-        bar_chart = g_result['current_league']['bar_chart'],
+        week_bar_chart = g_result['current_league']['week_bar_chart'],
+        total_bar_chart = g_result['current_league']['total_bar_chart'],
         radar_charts = g_result['current_league']['radar_charts'] )
 
