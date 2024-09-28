@@ -4,7 +4,7 @@
 
     <!-- Navbar  -->
     <div class="row sticky-top bg-gradient bg-light" style="height: 44px; margin: 0px; padding: 2px;">
-        <div class="col-3">
+        <div class="col-2">
             <div class="dropdown">
                 <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
                     aria-expanded="false">
@@ -32,27 +32,33 @@
             </div>
 
         </div>
-        <div class="col-6">
+        <div class="col-7">
             <ul class="nav nav-pills nav-fill mb-3" id="pills-tab" role="tablist">
                 <li class="nav-item" role="presentation">
                     <button class="nav-link active" id="pills-bar-tab" data-bs-toggle="pill"
                         data-bs-target="#pills-bar" type="button" role="tab" aria-controls="pills-bar"
-                        aria-selected="true">Roto战力图</button>
+                        aria-selected="true">战力榜</button>
                 </li>
                 <li class="nav-item" role="presentation">
                     <button class="nav-link" id="pills-roto-tab" data-bs-toggle="pill" data-bs-target="#pills-roto"
-                        type="button" role="tab" aria-controls="pills-roto" aria-selected="false">Roto明细表</button>
+                        type="button" role="tab" aria-controls="pills-roto" aria-selected="false">战力明细</button>
                 </li>
                 <li class="nav-item" role="presentation">
                     <button class="nav-link" id="pills-battle-tab" data-bs-toggle="pill"
                         data-bs-target="#pills-battle" type="button" role="tab" aria-controls="pills-battle"
-                        aria-selected="false">H2H对战表</button>
+                        aria-selected="false">假想对战表</button>
                 </li>
                 <li class="nav-item" role="presentation">
                     <button class="nav-link" id="pills-radar-tab" data-bs-toggle="pill"
                         data-bs-target="#pills-radar" type="button" role="tab" aria-controls="pills-radar"
-                        aria-selected="false">各队雷达图</button>
+                        aria-selected="false">分项雷达图</button>
                 </li>
+                {% if next_matchup_charts|length > 1 %}
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="pills-matchup-tab" data-bs-toggle="pill" data-bs-target="#pills-matchup"
+                        type="button" role="tab" aria-controls="pills-matchup" aria-selected="false">下周对阵参考</button>
+                </li>
+                {% endif %}
                 <li class="nav-item" role="presentation">
                     <button class="nav-link" id="pills-data-tab" data-bs-toggle="pill" data-bs-target="#pills-data"
                         type="button" role="tab" aria-controls="pills-data" aria-selected="false">原始数据表</button>
@@ -144,6 +150,18 @@
             {% endfor %}
             </div>
         </div>
+        {% if next_matchup_charts|length > 1 %}
+        <div class="tab-pane fade" id="pills-matchup" role="tabpanel" aria-labelledby="pills-matchup-tab">
+            <div class="mb-4"></div>
+            <div class="row row-md-3 row-sm-3 row-xs-3">
+            {% for chart in next_matchup_charts %}
+                <div class="col-4">
+                    <img src="data:image/png;base64,{{ chart }}" class="img-fluid">
+                </div>
+            {% endfor %}
+            </div>
+        </div>
+        {% endif %}
         <div class="tab-pane fade" id="pills-data" role="tabpanel" aria-labelledby="pills-data-tab">
             <div class="mb-4"></div>
             <div class="row row-md-3 row-sm-3 row-xs-3">

@@ -35,6 +35,6 @@ CHINESE_FONT_FILE = os.path.join(PROJECT_ROOT, 'static/fonts/SimSun-01.ttf')
 app.logger.debug('Chinese font file {}'.format(CHINESE_FONT_FILE))
 # app.logger.debug(CHINESE_FONT_FILE)
 
-
+OUTPUT_DIR = os.path.join(PROJECT_ROOT, 'output')
 
 

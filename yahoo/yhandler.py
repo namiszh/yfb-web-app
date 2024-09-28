@@ -527,6 +527,30 @@ class YHandler:
 
         return categories    
 
+    def get_league_matchup(self, league_teams, week):
+        '''
+        Return the matchup for a specified week.
+        '''
+
+        matchups = []
+        app.logger.debug('League teams') 
+        for team in league_teams:
+            app.logger.debug(team) 
+            uri = 'team/{}/matchups;weeks={}'.format(team['team_key'], week)
+            resp = self._get(uri)
+            # app.logger.debug(resp)
+            t = objectpath.Tree(resp)
+            jfilter = t.execute('$..teams..team..(name)')
+            for e in jfilter:
+                # app.logger.debug(e)
+                if e['name'] not in matchups:
+                    matchups.append(e['name'])
+        app.logger.debug('Week {} Match up'.format(week))
+        for i in range(0, len(matchups), 2 ): 
+            app.logger.debug('{} VS {}'.format(matchups[i], matchups[i+1])) 
+
+        return matchups
+
     def _get(self, uri):
         """Send an API request to the URI and return the response as JSON
 

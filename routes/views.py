@@ -13,10 +13,13 @@ import time
 import pytz
 from calendar import weekday
 from pandas import DataFrame
+import os
+import matplotlib.pyplot as plt
+from pandas.plotting import table 
 
 from app import app, yHandler
 from chart.compute import stat_to_score, roto_score_to_battle_score
-from chart.radar_chart import league_radar_charts
+from chart.radar_chart import league_radar_charts, next_matchup_radar_charts
 from chart.bar_chart import league_bar_chart
 
 
@@ -100,6 +103,7 @@ def get_league_info(league_id, week):
             today = datetime.datetime.now(pytz.timezone('US/Pacific')).date()
 
             start_week = int(league['start_week'])
+            end_week = int(league['end_week'])
             current_week = int(league['current_week'])
 
             min_week = start_week # display in page
@@ -107,7 +111,7 @@ def get_league_info(league_id, week):
             app.logger.debug('league name: {}'.format(league_name))
             app.logger.debug('start week: {}'.format(start_week))
             app.logger.debug('current week: {}'.format( current_week))
-            app.logger.debug('end week: {}'.format( int(league['end_week'])))
+            app.logger.debug('end week: {}'.format(end_week ))
             weekday = today.weekday()
             if weekday <= 1 and today < end_date:
                 max_week -= 1
@@ -120,9 +124,20 @@ def get_league_info(league_id, week):
                     display_week -= 1
             else: # input (week) is valid, use it
                 display_week = week
+
+            predict_week = current_week + 1
+            # if it is Monday, set predict week to current week
+            # because this is used for research the matchup
+            if weekday < 1:
+                predict_week -= 1
+            if predict_week > end_week:
+                predict_week = end_week
+
+
             app.logger.debug('min week: {}'.format(min_week))
             app.logger.debug('max week: {}'.format(max_week))
             app.logger.debug('display week: {}'.format(display_week))
+            app.logger.debug('predict week: {}'.format(predict_week))
             
             break
 
@@ -133,8 +148,9 @@ def get_league_info(league_id, week):
     g_result['current_league']['min_week'] = min_week
     g_result['current_league']['max_week'] = max_week
     g_result['current_league']['display_week'] = display_week
+    g_result['current_league']['predict_week'] = predict_week
 
-    return league_id, league_name, min_week, max_week, display_week
+    return league_id, league_name, min_week, max_week, display_week, predict_week
 
 @app.route('/main')
 @login_required
@@ -229,6 +245,7 @@ def team_stat(league_id, week, team_id):
 
             break
 
+
     return { 'status': 'success' }, 200
 
 
@@ -246,6 +263,9 @@ def analyze(league_id, week):
     sort_orders = g_result['current_league']['sort_orders']
     teams = g_result['current_league']['teams']
     team_names = list(map(lambda x: x['name'], teams))
+
+    predict_week = g_result['current_league']['predict_week']
+    next_matchups = yHandler.get_league_matchup(teams, week)
 
     week_df = pd.DataFrame(columns=stat_names, index=team_names)
     week_df.columns.name = 'Team Name'
@@ -281,6 +301,8 @@ def analyze(league_id, week):
     g_result['current_league']['week_score_df'] = week_score
     g_result['current_league']['total_score_df'] = total_score
     g_result['current_league']['battle_score_df'] = battle_score
+
+    g_result['current_league']['next_matchups'] = next_matchups
     # g_result['current_league']['bar_chart'] = bar_chart
     # g_result['current_league']['radar_charts'] = radar_charts
 
@@ -307,12 +329,15 @@ def chart(league_id, week):
     week_score = g_result['current_league']['week_score_df']
     total_score = g_result['current_league']['total_score_df']
     battle_score = g_result['current_league']['battle_score_df']
+    next_matchups = g_result['current_league']['next_matchups']
+    predict_week = g_result['current_league']['predict_week']
     teams = g_result['current_league']['teams']
     team_names = list(map(lambda x: x['name'], teams))
 
     week_bar_chart = league_bar_chart(week_score, '{} 战力榜 - Week {}'.format(league_name, week))
     total_bar_chart = league_bar_chart(total_score, '{} 战力榜 - Total'.format(league_name))
     radar_charts = league_radar_charts(week_score, total_score, week)
+    next_matchup_charts = next_matchup_radar_charts(total_score, next_matchups, predict_week)
 
     # format output
     week_score = remove_trailing_zero(week_score)
@@ -325,6 +350,7 @@ def chart(league_id, week):
     g_result['current_league']['week_bar_chart'] = week_bar_chart
     g_result['current_league']['total_bar_chart'] = total_bar_chart
     g_result['current_league']['radar_charts'] = radar_charts
+    g_result['current_league']['next_matchup_charts'] = next_matchup_charts
 
     return { 'status': 'success' }, 200
 
@@ -375,5 +401,6 @@ def showresult(league_id, week):
         battle_score= battle_score,
         week_bar_chart = g_result['current_league']['week_bar_chart'],
         total_bar_chart = g_result['current_league']['total_bar_chart'],
-        radar_charts = g_result['current_league']['radar_charts'] )
+        radar_charts = g_result['current_league']['radar_charts'],
+        next_matchup_charts = g_result['current_league']['next_matchup_charts'] )
 
